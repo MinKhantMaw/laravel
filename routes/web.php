@@ -14,6 +14,8 @@ use App\Http\Controllers\HomeController;
 |
 */
 
-// Route::get('/',[HomeController::class,'index']);
+//  Route::get('/',[HomeController::class,'testroot'])->name('root');
 
-Route::resource('/', HomeController::class);
+Route::resource('/posts', HomeController::class);
+
+Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard',[HomeController::class,'index']);

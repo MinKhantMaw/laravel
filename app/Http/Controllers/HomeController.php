@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Http\Requests\storePostRequests;
 
 class HomeController extends Controller
 {
@@ -12,10 +14,13 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function index()
     {
-        $data=Post::all();
-        return view('home',compact('data'));
+        // $data=Post::all();
+        $data = Post::orderBy('id', 'desc')->get();
+        // dd($data);
+        return view('home', compact('data'));
     }
 
     /**
@@ -25,7 +30,8 @@ class HomeController extends Controller
      */
     public function create()
     {
-        //
+        $categories = Category::all();
+        return view('create',compact('categories'));
     }
 
     /**
@@ -34,9 +40,26 @@ class HomeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(storePostRequests $request)
     {
-        //
+        //    $request->validate([
+        //         'name' => 'required|unique:posts|max:255',
+        //         'description' => 'required',
+        //     ]);
+
+        //storepostRequests inject
+        // $validated=$request->validate();
+        $post = new Post();
+        $post->name = $request->name;
+        $post->description = $request->description;
+        $post->category_id = $request->category;
+        $post->save();
+        // Post::creat([
+        //     'name'=>$request->name,
+        //     'description'=>$request->description,
+        //     'category_id'=>$request->category_id,
+        // ]);
+        return redirect('/posts');
     }
 
     /**
@@ -45,9 +68,11 @@ class HomeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Post $post)
     {
-        //
+        //Route Model Binding
+        //$post=Post::findOrFail($id);
+        return view('show', compact('post'));
     }
 
     /**
@@ -56,9 +81,12 @@ class HomeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Post $post)
     {
-        //
+
+        // $post=Post::findOrFail($id);
+        $categories = Category::all();
+        return view('edit', compact('post','categories'));
     }
 
     /**
@@ -68,9 +96,24 @@ class HomeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(storePostRequests $request, Post $post)
     {
-        //
+        // $post=Post::findOrFail($id);
+        // $request->validate([
+        //     'name' => 'required|unique:posts|max:255',
+        //     'description' => 'required',
+        // ]);
+        //storePostRequests inject
+        // $post->name=$request->name;
+        // $post->description=$request->description;
+
+        // $post->save();
+        $post->update([
+            'name' => $request->name,
+            'description' => $request->description,
+             'category_id' => $request->category,
+        ]);
+        return redirect('/posts');
     }
 
     /**
@@ -81,6 +124,7 @@ class HomeController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Post::findOrFail($id)->delete();
+        return redirect('/posts');
     }
 }
